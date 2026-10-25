@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<script>window.onerror=function(m,u,l){var d=document.createElement("pre");d.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99;background:#fee;color:#900;padding:8px;font:12px monospace;direction:ltr;white-space:pre-wrap";d.textContent="ERR: "+m+" @"+l;document.documentElement.appendChild(d)};function rs(){try{localStorage.removeItem("tayo")}catch(x){}location.reload()}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>ⲧⲁⲓⲟ</title>
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon.jpg"><link rel="apple-touch-icon" href="icon.jpg">
@@ -47,7 +48,7 @@ table{border-collapse:collapse;width:100%;font-size:13px}td,th{border:1px solid 
 const $=s=>document.querySelector(s),e=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let S={u:[],n:[],sh:[],q:[],al:[],fast:0,me:0,sup:0,view:0,th:1,code:''},pg='h';
 try{Object.assign(S,JSON.parse(localStorage.getItem('tayo')||'{}'))}catch(x){}
-S.al=(S.al||[]).map(x=>typeof x=='string'?{m:x}:x);S.pu=S.pu||[];
+S.al=(S.al||[]).map(x=>typeof x=='string'?{m:x}:x);S.pu=S.pu||[];['u','sh','q','n','al','pu'].forEach(k=>{if(!Array.isArray(S[k]))S[k]=[]});if(S.view&&!S.u.some(x=>x.id==S.view))S.view=0;
 const r_=()=>r();
 const sv=()=>{diff();save();r();clearTimeout(tm);tm=setTimeout(sync,800)};
 function md(m,d,inp){return new Promise(res=>{const o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;z-index:9';o.innerHTML=`<div class="card" style="width:88%;margin:0;background:#fffdf8"><p>${e(m)}</p>${inp?`<input ${inp==2?'type="password" ':''}value="${e(d)}">`:''}<button>تمام</button> <button class="ln">إلغاء</button></div>`;document.body.append(o);const i=o.querySelector('input'),[b,c]=o.querySelectorAll('button');i&&i.focus();b.onclick=()=>{o.remove();res(inp?i.value:true)};c.onclick=()=>{o.remove();res(inp?null:false)}})}
@@ -157,7 +158,7 @@ const sets=a=>`<div class="card"><h2>Settings</h2><b>السمة</b><div class="d
 ${a?`<div class="card"><h2>بياناتي</h2><input id="en" value="${e(a.name)}"><input id="ep" value="${e(a.phone)}"><input id="ef" value="${e(a.fa)}"><button class="big" onclick="rq()">إرسال التعديل للموافقة</button>${a.rq?'<small>في انتظار موافقة المشرف</small>':''}</div>`:''}${S.sup?'<div class="card"><button class="big" onclick="chpw()">تغيير باسورد المشرف</button></div>':''}<div style="text-align:center"><button onclick="out()">خروج</button></div>`;
 const mgr=()=>{const pend=S.u.filter(u=>u.st=='p'||u.rq);return `<div class="card"><button class="big" onclick="go('r')">كشف الشهر</button></div><div class="card"><h2>طلبات بانتظار الموافقة</h2>${pend.map(u=>`<div class="it"><b>${e(u.rq?u.rq.name:u.name)}</b> ${e(u.rq?u.rq.phone:u.phone)} / ${e(u.rq?u.rq.fa:u.fa)}<br><small>${u.st=='p'?'تسجيل جديد':'تعديل بيانات'}</small><br><button onclick="ok(${u.id})">موافقة</button> <button class="ln" onclick="no(${u.id})">رفض</button></div>`).join('')||'مفيش'}</div>
 <div class="card"><h2>المخدومين</h2><label><input type="checkbox" style="width:auto" ${S.fast?'checked':''} onchange="S.fast=this.checked?1:0;sv()"> اليوم يوم صيام</label>${S.u.filter(u=>u.st=='ok').map(u=>`<div class="it"><b>${e(u.name)}</b> (${u.pts}) · حضور ${(u.att||[]).length}<br><button onclick="vw(${u.id})">دخول</button> <button class="ln" onclick="pt(${u.id})">النقاط</button><button class="ln" onclick="ed(${u.id})">تعديل</button><button class="ln" onclick="md('حذف؟').then(y=>y&&no(${u.id}))">حذف</button></div>`).join('')}</div>`};
-function r(){document.body.className='t'+S.th;const m=S.me?U(S.me):0,a=A(),app=$('#app');
+function r0(){document.body.className='t'+S.th;const m=S.me?U(S.me):0,a=A(),app=$('#app');
  if(!m&&!S.sup){app.innerHTML=login();return}
  if(m&&m.st=='p'&&!S.sup){app.innerHTML=hero(0,'أهلاً '+e(m.name))+`<div class="card"><h2>طلبك اتبعت</h2>استنى موافقة المشرف عشان تدخل.<br><button class="ln" onclick="out()">خروج</button></div>`;return}
  ;
@@ -165,6 +166,7 @@ function r(){document.body.className='t'+S.th;const m=S.me?U(S.me):0,a=A(),app=$
  let body=pg=='h'?(a?att(a):attSup()):pg=='t'?tasks(a):pg=='q'?quest(a,S.sup&&!S.view):pg=='a'?album():pg=='n'?notes():pg=='s'?sets(a):pg=='r'?(S.sup?rep():''):mgr();
  const tabs=nav.concat(S.sup?[['m','👥','المشرف']]:[]);
  app.innerHTML=(S.view?`<div class="bn">بتعرض حساب ${e(a.name)} <button class="ln" style="color:#fff" onclick="S.view=0;pg='m';sv()">رجوع</button></div>`:'')+hero(a,'خدمة أبطال الأيمان')+body+`<nav>${tabs.map(([k,i,n])=>`<button class="${pg==k?'s':''}" onclick="go('${k}')"><i>${i}</i>${n}</button>`).join('')}</nav>`}
+function r(){try{r0()}catch(x){$('#app').innerHTML='<div class="card"><h2>حصلت مشكلة</h2><p style="direction:ltr;font-size:12px">'+e(x&&x.message||x)+'</p><button class="big" onclick="rs()">مسح بيانات التطبيق من التليفون ده</button></div>'}}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 setInterval(tickQR,1000);setInterval(sync,20000);addEventListener('online',sync);addEventListener('offline',ui);r();tickQR();sync();
 </script></body></html>
