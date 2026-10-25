@@ -1,1 +1,1 @@
-{"name":"ⲧⲁⲓⲟ","short_name":"ⲧⲁⲓⲟ","start_url":".","display":"standalone","background_color":"#fbf4e4","theme_color":"#b8821f","dir":"rtl","lang":"ar","icons":[{"src":"icon.jpg","sizes":"720x720","type":"image/jpeg","purpose":"any"}]}
+{"id":"tayo-app","name":"ⲧⲁⲓⲟ","short_name":"ⲧⲁⲓⲟ","start_url":"./","scope":"./","display":"standalone","background_color":"#fbf4e4","theme_color":"#b8821f","dir":"rtl","lang":"ar","icons":[{"src":"icon.jpg","sizes":"720x720","type":"image/jpeg","purpose":"any"}]}
