@@ -55,9 +55,10 @@ function md(m,d,inp){return new Promise(res=>{const o=document.createElement('di
 function tt(m){const t=document.createElement('div');t.className='bn';t.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99';t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),3000)}
 const day=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')},wd=()=>new Date().getDay();
 const U=id=>S.u.find(u=>u.id==id),A=()=>U(S.view||S.me);
+const SUP_EMAIL='';
 const SB={url:'https://djybjsmbyoqhsdxqejly.supabase.co',key:'sb_publishable_LNCYlDkeR5UTf0xfbrJ6PQ_OtwsIj0t'};
 const KS=['u','sh','q','n','al','pu'],ik=it=>String(it.id||it.i),HD=t=>({apikey:SB.key,Authorization:'Bearer '+(t||SB.key),'Content-Type':'application/json'});
-let ST=0,busy=0,tm;
+let ST=0,busy=0,tm,ER='';
 const save=()=>{try{localStorage.setItem('tayo',JSON.stringify(S))}catch(x){tt('المساحة امتلأت، قلل الصور')}};
 function diff(){S.sg=S.sg||{};S.qq=S.qq||{};const seen={};
  KS.forEach(k=>(S[k]=S[k]||[]).forEach(it=>{if(!it.id&&!it.i)it.i=Date.now().toString(36)+Math.random().toString(36).slice(2,6);const i=ik(it);seen[i]=1;const g=hh(JSON.stringify(it,(a,v)=>a=='_t'?undefined:v)),o=S.sg[i];if(!o||o.s!==g){it._t=Date.now();S.sg[i]={k,s:g};S.qq[i]={k,t:it._t}}}));
@@ -66,10 +67,10 @@ function diff(){S.sg=S.sg||{};S.qq=S.qq||{};const seen={};
 function dedupe(){const m={};let n=0;S.u.slice().sort((a,b)=>a.id-b.id).forEach(u=>{const k=u.phone;if(m[k]){if(S.me==u.id)S.me=m[k].id;S.u=S.u.filter(x=>x!==u);n++}else m[k]=u});return n}
 async function bearer(){if(!S.sup||!S.tk)return SB.key;if(S.te>Date.now()+60000)return S.tk;
  const r=await fetch(SB.url+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SB.key,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:S.rt})});
- if(!r.ok){if(r.status<500){S.sup=0;S.tk='';save();tt('انتهت جلسة المشرف، سجل دخول تاني');r_()}throw 1}
+ if(!r.ok){if(r.status<500){S.sup=0;S.tk='';save();tt('انتهت جلسة المشرف، سجل دخول تاني');r_()}ER='auth '+r.status;throw 1}
  const j=await r.json();S.tk=j.access_token;S.rt=j.refresh_token;S.te=Date.now()+j.expires_in*1000;save();return S.tk}
 async function pull(t){const since=new Date((S.lp||0)-6e5).toISOString();
- const res=await fetch(SB.url+'/rest/v1/items?select=id,kind,data,updated_at&order=updated_at.asc&updated_at=gt.'+encodeURIComponent(since),{headers:HD(t)});if(!res.ok)throw 1;const rows=await res.json();let ch=0;
+ const res=await fetch(SB.url+'/rest/v1/items?select=id,kind,data,updated_at&order=updated_at.asc&updated_at=gt.'+encodeURIComponent(since),{headers:HD(t)});if(!res.ok){ER='pull '+res.status+' '+(await res.text()).slice(0,90);throw 1}const rows=await res.json();let ch=0;
  for(const w of rows){S.lp=Math.max(S.lp||0,Date.parse(w.updated_at)||0);const d=w.data||{},k=w.kind;
   if(k=='cfg'){if((d._t||0)>(S.ft||0)){S.fast=d.fast;S.ft=d._t;S.sg.cfg={k:'cfg',s:hh(String(S.fast))};ch=1}continue}
   if(!KS.includes(k)||S.qq[w.id])continue;const L=S[k],ix=L.findIndex(x=>ik(x)==w.id),sg=()=>hh(JSON.stringify(d,(a,v)=>a=='_t'?undefined:v));
@@ -77,14 +78,14 @@ async function pull(t){const since=new Date((S.lp||0)-6e5).toISOString();
   if(ix<0){L.push(d);S.sg[w.id]={k,s:sg()};ch=1}else if((d._t||0)>(L[ix]._t||0)){L[ix]=d;S.sg[w.id]={k,s:sg()};ch=1}}
  if(dedupe())ch=1;return ch}
 async function sync(){if(!SB.url||busy||!navigator.onLine){ui();return}busy=1;
- try{diff();const t=await bearer();let pe=0;const snap={...S.qq},ks=Object.keys(snap).filter(i=>S.sup||['u','q','pu'].includes(snap[i].k)),now=new Date().toISOString();
+ try{ER='';diff();const t=await bearer();let pe=0;const snap={...S.qq},ks=Object.keys(snap).filter(i=>S.sup||['u','q','pu'].includes(snap[i].k)),now=new Date().toISOString();
   if(ks.length){const rows=ks.map(i=>{const q=snap[i];if(q.x)return{id:i,kind:q.k,data:{_x:1,_t:q.t},updated_at:now};if(q.k=='cfg')return{id:'cfg',kind:'cfg',data:{fast:S.fast,_t:S.ft},updated_at:now};const it=S[q.k].find(x=>ik(x)==i);return it?{id:i,kind:q.k,data:it,updated_at:now}:null}).filter(Boolean);
-   if(rows.length){try{const p=await fetch(SB.url+'/rest/v1/items?on_conflict=id',{method:'POST',headers:{...HD(t),Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(rows)});if(!p.ok)throw 1}catch(x){pe=1}}
+   if(rows.length){try{const p=await fetch(SB.url+'/rest/v1/items?on_conflict=id',{method:'POST',headers:{...HD(t),Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(rows)});if(!p.ok){ER='push '+p.status+' '+(await p.text()).slice(0,90);throw 1}}catch(x){pe=1;if(!ER)ER='push '+(x&&x.message||x)}}
    if(!pe)ks.forEach(i=>{if(S.qq[i]&&S.qq[i].t===snap[i].t)delete S.qq[i]})}
-  const ch=await pull(t);ST=pe?0:1;diff();save();const f=document.activeElement;if(ch&&!(f&&/INPUT|TEXTAREA/.test(f.tagName)))r()}catch(x){ST=0}
+  const ch=await pull(t);ST=pe?0:1;diff();save();const f=document.activeElement;if(ch&&!(f&&/INPUT|TEXTAREA/.test(f.tagName)))r()}catch(x){ST=0;if(!ER)ER=String(x&&x.message||x)}
  busy=0;ui()}
-function ui(){const el=$('#st');if(!el)return;const n=Object.keys(S.qq||{}).length;el.textContent=(SB.url?(navigator.onLine&&ST?'🟢 متصل':'🔴 أوفلاين'):'🔴 غير مربوط بقاعدة البيانات')+(n?' · '+n+' بانتظار المزامنة':'')}
-const T=[['b','صبحت على بابا يسوع (صلاة باكر)',10],['a','صليت بالأجبية',20],['c','اعترفت',50],['m','5 ميطانيات',20],['j','فرحت قلب ربنا',10],['s','الصلاة السهمية',10]];
+function ui(){const el=$('#st');if(!el)return;const n=Object.keys(S.qq||{}).length;el.textContent=(SB.url?(navigator.onLine&&ST?'🟢 متصل':'🔴 أوفلاين'):'🔴 غير مربوط بقاعدة البيانات')+(n?' · '+n+' بانتظار المزامنة':'')+(ER&&!ST?' ['+ER+']':'')}
+const T=[['b','صبحت على بابا يسوع (صلاة باكر)',10],['a','صليت بالأجبية',20],['c','اعترفت',50],['m','5 ميطانيات',20],['j','فرحت قلب ربنا',10],['s','الصلاة السهمية',10],['g','قريت الإنجيل',10]];
 const V=['الرب راعيَّ فلا يعوزني شيء (مز 23: 1)','أستطيع كل شيء في المسيح الذي يقويني (في 4: 13)','اطلبوا أولاً ملكوت الله وبره (مت 6: 33)','الرب نوري وخلاصي، ممن أخاف؟ (مز 27: 1)','تعالوا إليّ يا جميع المتعبين والثقيلي الأحمال وأنا أريحكم (مت 11: 28)','لا تخف لأني معك (إش 41: 10)','كن أميناً إلى الموت فسأعطيك إكليل الحياة (رؤ 2: 10)'];
 const TH=['ذهبي إسكندراني','برتقالي','أزرق ملكي','قرمزي الشهداء','أخضر البرية'];
 const nav=[['h','📷','الحضور'],['t','✝','المهام'],['q','❓','أسئلة'],['a','🖼','Memory Album'],['n','🔔','الإشعارات'],['s','⚙','Settings']];
@@ -105,10 +106,11 @@ function reg(){const n=$('#n').value.trim(),p=$('#p').value.trim(),f=$('#f').val
  if(S.u.some(u=>u.phone==p||u.name==n))return tt('الحساب ده مسجل قبل كده');
  const u={id:Date.now(),name:n,phone:p,fa:f,st:'p',pts:0,log:{}};S.u.push(u);S.me=u.id;sv()}
 async function lg(){const p=await md('رقم التليفون المسجل','',1);const u=S.u.find(x=>x.phone==(p||'').trim());if(u){S.me=u.id;sv()}else tt('مفيش حساب بالرقم ده')}
-function sl(){$('#sw').hidden=false;$('#sem').focus()}
-async function sl2(){const em=$('#sem').value.trim(),pw=$('#spw').value;if(!em||!pw)return tt('اكتب الإيميل والباسورد');if(!navigator.onLine)return tt('محتاج نت لتسجيل دخول المشرف');
+const em0=()=>SUP_EMAIL||S.se||'';
+function sl(){$('#sw').hidden=false;$(em0()?'#spw':'#sem').focus()}
+async function sl2(){const em=$('#sem').value.trim(),pw=$('#spw').value;if(!em||!pw)return tt(em0()?'اكتب الباسورد':'اكتب الإيميل والباسورد');if(!navigator.onLine)return tt('محتاج نت لتسجيل دخول المشرف');
  try{const r=await fetch(SB.url+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SB.key,'Content-Type':'application/json'},body:JSON.stringify({email:em,password:pw})});const j=await r.json();
- if(!r.ok||!j.access_token)return tt('الإيميل أو الباسورد غلط');S.tk=j.access_token;S.rt=j.refresh_token;S.te=Date.now()+j.expires_in*1000;S.sup=1;pg='m';sv()}catch(x){tt('حصلت مشكلة في الاتصال')}}
+ if(!r.ok||!j.access_token)return tt(r.status==400?(em0()?'الباسورد غلط':'الإيميل أو الباسورد غلط'):'خطأ '+r.status+': '+(j.msg||j.message||j.error_description||''));S.se=em;S.tk=j.access_token;S.rt=j.refresh_token;S.te=Date.now()+j.expires_in*1000;S.sup=1;pg='m';sv()}catch(x){tt('تعذر الاتصال: '+(x&&x.message||x))}}
 function out(){S.me=0;S.sup=0;S.tk='';S.rt='';S.view=0;pg='h';sv()}
 function tk(k,p){const a=A(),L=a.log[day()]||[];if(L.includes(k))return;a.log[day()]=[...L,k];a.pts+=p;sv()}
 function un(k,p){const a=A(),L=a.log[day()]||[];a.log[day()]=L.filter(x=>x!=k);a.pts-=p;sv()}
@@ -138,7 +140,7 @@ const hero=(a,sub)=>`<div class="hero"><img class="logo" src="data:image/jpeg;ba
 function login(){return hero(0,'خدمة أبطال الأيمان، ثانوي بنين')+`<div class="card"><h2>تسجيل جديد</h2>
 <input id="n" placeholder="الاسم"><input id="p" type="tel" placeholder="رقم التليفون"><input id="f" placeholder="اسم أب الاعتراف">
 <button class="big" onclick="reg()">تسجيل</button><div style="text-align:center;margin-top:8px"><button class="ln" onclick="lg()">عندي حساب</button></div></div>
-<div style="text-align:center;margin:10px"><button class="ln" onclick="sl()">تسجيل مشرف</button></div><div id="sw" class="card" hidden><input id="sem" type="email" placeholder="إيميل المشرف" autocomplete="username"><input id="spw" type="password" placeholder="باسورد المشرف" autocomplete="current-password"><button class="big" onclick="sl2()">دخول</button></div>`}
+<div style="text-align:center;margin:10px"><button class="ln" onclick="sl()">تسجيل مشرف</button></div><div id="sw" class="card" hidden><input id="sem" type="email" placeholder="إيميل المشرف" autocomplete="username" ${em0()?'style="display:none" value="'+e(em0())+'"':''}><input id="spw" type="password" placeholder="باسورد المشرف" autocomplete="current-password"><button class="big" onclick="sl2()">دخول</button></div>`}
 function tasks(a){const L=a?(a.log[day()]||[]):[],ts=T.slice();if(wd()==3||wd()==5)ts.push(['w','صومت أربع وجمعة',20]);if(wd()==4)ts.push(['x','حضرت الخدمة',20]);if(wd()==5)ts.push(['l','حضرت الألحان',20]);if(S.fast)ts.push(['f','صومت',20]);
  const top=S.u.filter(u=>u.st=='ok').sort((x,y)=>y.pts-x.pts).slice(0,10);
  return `${a?`<div class="v">${V[wd()]}</div><div class="card"><h2>مهام النهاردة</h2>${ts.map(([k,n,p])=>{const d=L.includes(k);return `<div class="it ${d?'on':''}"><div class="row"><button class="ck" onclick="tk('${k}',${p})" ${d?'disabled':''}>${d?'✓':''}</button><span>${n}</span><b>${p} ⲧⲁⲓⲟ</b></div>${d?`<button class="ln" onclick="un('${k}',${p})">إلغاء</button>`:''}</div>`}).join('')}</div>`:''}
@@ -147,10 +149,10 @@ function tasks(a){const L=a?(a.log[day()]||[]):[],ts=T.slice();if(wd()==3||wd()=
 ${S.sup?`<hr><input id="sn" placeholder="اسم المنتج"><input id="sd" placeholder="وصف (اختياري)"><input id="sp" type="number" placeholder="السعر بـ ⲧⲁⲓⲟ"><input id="si" type="file" accept="image/*"><button onclick="addSh()">إضافة للمتجر</button>`:''}</div>`}
 const att=a=>{const A_=a.att||[],on=A_.includes(day());return `<div class="card"><h2>تسجيل الحضور</h2>${on?'<p>✓ اتسجل حضورك النهاردة</p>':'<p>امسح باركود الخدمة عشان تسجل حضورك.</p><button class="big" onclick="scan()">مسح الباركود</button><video id="cam" hidden playsinline muted></video>'}<p><small>الخدمة كل يوم خميس الساعة 7:30 مساءً</small></p><p><small>عدد مرات حضورك: ${A_.length}</small></p></div>`};
 const attSup=()=>{const ms=S.u.filter(u=>u.st=='ok'),n=u=>(u.att||[]).includes(day());return `<div class="card"><h2>باركود الحضور</h2><div id="qr" style="text-align:center"></div><p style="text-align:center"><small id="qc"></small></p><p><small>الخدمة كل يوم خميس الساعة 7:30 مساءً. المخدومين يمسحوا الباركود من صفحة الحضور.</small></p></div><div class="card"><h2>حضور النهاردة (${ms.filter(n).length}/${ms.length})</h2>${ms.map(u=>`<div class="row it"><span>${e(u.name)}</span><b>${n(u)?'✓ حاضر':'غايب'}</b><button class="ln" onclick="tg(${u.id})">تعديل</button></div>`).join('')||'مفيش مخدومين'}</div>`};
-const K=[['b','باكر'],['a','أجبية'],['c','اعتراف'],['m','ميطانيات'],['j','فرحت'],['s','سهمية'],['w','أربع/جمعة'],['f','صيام'],['x','الخدمة'],['l','الألحان']];
+const K=[['b','باكر'],['a','أجبية'],['c','اعتراف'],['m','ميطانيات'],['j','فرحت'],['s','سهمية'],['w','أربع/جمعة'],['f','صيام'],['x','الخدمة'],['l','الألحان'],['g','الإنجيل']];
 const rep=()=>{const mo=S.mo||day().slice(0,7),ms=S.u.filter(u=>u.st=='ok');
  const rows=ms.map(u=>{const cn={};Object.keys(u.log||{}).filter(d=>d.startsWith(mo)).forEach(d=>u.log[d].forEach(k=>cn[k]=(cn[k]||0)+1));const at=(u.att||[]).filter(d=>d.startsWith(mo)).length;return `<tr><td>${e(u.name)}</td><td>${at}</td>${K.map(([k])=>`<td>${cn[k]||0}</td>`).join('')}</tr>`}).join('');
- return `<div class="card"><h2>كشف الشهر</h2><input type="month" value="${mo}" onchange="S.mo=this.value;sv()"><div style="overflow-x:auto"><table><tr><th>الاسم</th><th>حضور</th>${K.map(([,n])=>`<th>${n}</th>`).join('')}</tr>${rows||'<tr><td colspan="12">مفيش مخدومين</td></tr>'}</table></div><small>الأرقام = عدد المرات في الشهر</small><br><button class="ln" onclick="go('m')">رجوع</button></div>`};
+ return `<div class="card"><h2>كشف الشهر</h2><input type="month" value="${mo}" onchange="S.mo=this.value;sv()"><div style="overflow-x:auto"><table><tr><th>الاسم</th><th>حضور</th>${K.map(([,n])=>`<th>${n}</th>`).join('')}</tr>${rows||'<tr><td colspan="13">مفيش مخدومين</td></tr>'}</table></div><small>الأرقام = عدد المرات في الشهر</small><br><button class="ln" onclick="go('m')">رجوع</button></div>`};
 const quest=(a,m)=>m?`<div class="card"><h2>الأسئلة</h2>${S.q.slice().reverse().map(q=>`<div class="it"><b>${e(q.n)}</b> <small>${q.d||''}</small><p>${e(q.t)}</p>${q.r?`<p style="color:var(--b)">↩ ${e(q.r)}</p>`:''}<button onclick="repl('${ik(q)}')">${q.r?'تعديل الرد':'رد'}</button> <button class="ln" onclick="dq('${ik(q)}')">حذف</button></div>`).join('')||'مفيش أسئلة'}</div>`:`<div class="card"><h2>اسأل أي سؤال</h2><textarea id="qt" rows="4" placeholder="اكتب سؤالك"></textarea><label><input id="qa" type="checkbox" style="width:auto"> عدم إظهار اسم المرسل</label><br><button class="big" onclick="ask()">إرسال</button></div><div class="card"><h2>أسئلتي</h2>${S.q.filter(q=>q.by&&q.by==S.qt).reverse().map(q=>`<div class="it"><p>${e(q.t)}</p>${q.r?`<p style="color:var(--b)">↩ ${e(q.r)}</p>`:'<small>لسه مفيش رد</small>'}</div>`).join('')||'لسه ماسألتش'}</div>`;
 const album=()=>`<div class="card"><h2>Memory Album</h2>${S.sup?`<input id="ai" type="file" accept="image/*"><button onclick="addAl()">رفع صورة</button><hr>`:''}<div class="g">${S.al.map(x=>`<div><img src="${x.m}" alt=""><a class="btn" download="tayo.jpg" href="${x.m}">تنزيل</a></div>`).join('')||'لسه مفيش صور'}</div></div>`;
 const notes=()=>`<div class="card"><h2>الإشعارات</h2>${S.sup?`<textarea id="nt" rows="2" placeholder="اكتب إشعار"></textarea><button onclick="addN()">نشر</button><hr>`:''}${S.n.map(n=>`<div class="it">${e(n.t)}<br><small>${n.d}</small></div>`).join('')||'مفيش إشعارات'}</div>`;
