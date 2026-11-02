@@ -5,7 +5,7 @@
 <title>ⲧⲁⲓⲟ</title>
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon.jpg"><link rel="apple-touch-icon" href="icon.jpg">
 <meta name="theme-color" content="#b8821f">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script><script src="verses.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0}
@@ -88,7 +88,7 @@ function ui(){const el=$('#st');if(!el)return;const n=Object.keys(S.qq||{}).leng
 const T=[['b','صبحت على بابا يسوع (صلاة باكر)',10],['a','صليت بالأجبية',20],['c','اعترفت',50],['m','5 ميطانيات',20],['j','فرحت قلب ربنا',10],['s','الصلاة السهمية',10],['g','قريت الإنجيل',10]];
 const V=['الرب راعيَّ فلا يعوزني شيء (مز 23: 1)','أستطيع كل شيء في المسيح الذي يقويني (في 4: 13)','اطلبوا أولاً ملكوت الله وبره (مت 6: 33)','الرب نوري وخلاصي، ممن أخاف؟ (مز 27: 1)','تعالوا إليّ يا جميع المتعبين والثقيلي الأحمال وأنا أريحكم (مت 11: 28)','لا تخف لأني معك (إش 41: 10)','كن أميناً إلى الموت فسأعطيك إكليل الحياة (رؤ 2: 10)'];
 const TH=['ذهبي إسكندراني','برتقالي','أزرق ملكي','قرمزي الشهداء','أخضر البرية'];
-const nav=[['h','📷','الحضور'],['t','✝','المهام'],['q','❓','أسئلة'],['a','🖼','Memory Album'],['n','🔔','الإشعارات'],['s','⚙','Settings']];
+const nav=[['h','📷','الحضور'],['t','✝','المهام'],['q','❓','أسئلة'],['a','🖼','Memory Album'],['c','🏆','المسابقات'],['n','🔔','الإشعارات'],['s','⚙','Settings']];
 function img(f,cb){const R=new FileReader();R.onload=()=>{const I=new Image();I.onload=()=>{const k=Math.min(1,700/I.width),c=document.createElement('canvas');c.width=I.width*k;c.height=I.height*k;c.getContext('2d').drawImage(I,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.7))};I.src=R.result};R.readAsDataURL(f)}
 const CODE='TAYO-2026',ONLY_THU=true;
 const hh=t=>{let a=0xdeadbeef,b=0x41c6ce57;for(let i=0;i<t.length;i++){const c=t.charCodeAt(i);a=Math.imul(a^c,2654435761);b=Math.imul(b^c,1597334677)}a=Math.imul(a^(a>>>16),2246822507)^Math.imul(b^(b>>>13),3266489909);b=Math.imul(b^(b>>>16),2246822507)^Math.imul(a^(a>>>13),3266489909);return (4294967296*(2097151&b)+(a>>>0)).toString(36)};
@@ -156,9 +156,9 @@ const rep=()=>{const mo=S.mo||day().slice(0,7),ms=S.u.filter(u=>u.st=='ok');
  return `<div class="card"><h2>كشف الشهر</h2><input type="month" value="${mo}" onchange="S.mo=this.value;sv()"><div style="overflow-x:auto"><table><tr><th>الاسم</th><th>حضور</th>${K.map(([,n])=>`<th>${n}</th>`).join('')}</tr>${rows||'<tr><td colspan="13">مفيش مخدومين</td></tr>'}</table></div><small>الأرقام = عدد المرات في الشهر</small><br><button class="ln" onclick="go('m')">رجوع</button></div>`};
 const quest=(a,m)=>m?`<div class="card"><h2>الأسئلة</h2>${S.q.slice().reverse().map(q=>`<div class="it"><b>${e(q.n)}</b> <small>${q.d||''}</small><p>${e(q.t)}</p>${q.r?`<p style="color:var(--b)">↩ ${e(q.r)}</p>`:''}<button onclick="repl('${ik(q)}')">${q.r?'تعديل الرد':'رد'}</button> <button class="ln" onclick="dq('${ik(q)}')">حذف</button></div>`).join('')||'مفيش أسئلة'}</div>`:`<div class="card"><h2>اسأل أي سؤال</h2><textarea id="qt" rows="4" placeholder="اكتب سؤالك"></textarea><label><input id="qa" type="checkbox" style="width:auto"> عدم إظهار اسم المرسل</label><br><button class="big" onclick="ask()">إرسال</button></div><div class="card"><h2>أسئلتي</h2>${S.q.filter(q=>q.by&&q.by==S.qt).reverse().map(q=>`<div class="it"><p>${e(q.t)}</p>${q.r?`<p style="color:var(--b)">↩ ${e(q.r)}</p>`:'<small>لسه مفيش رد</small>'}</div>`).join('')||'لسه ماسألتش'}</div>`;
 const album=()=>`<div class="card"><h2>Memory Album</h2>${S.sup?`<input id="ai" type="file" accept="image/*"><button onclick="addAl()">رفع صورة</button><hr>`:''}<div class="g">${S.al.map((x,i)=>`<div><img src="${x.m}" alt=""><a class="btn" download="tayo.jpg" href="${x.m}">تنزيل</a>${S.sup?` <button class="ln" onclick="delAl(${i})">حذف</button>`:''}</div>`).join('')||'لسه مفيش صور'}</div></div>`;
-const notes=()=>`<div class="card"><h2>الإشعارات</h2>${S.sup?`<textarea id="nt" rows="2" placeholder="اكتب إشعار"></textarea><button onclick="addN()">نشر</button><hr>`:''}${S.n.map(n=>`<div class="it">${e(n.t)}<br><small>${n.d}</small></div>`).join('')||'مفيش إشعارات'}</div>`;
+const notes=()=>`<div class="card"><h2>الإشعارات</h2>${S.sup?`<textarea id="nt" rows="2" placeholder="اكتب إشعار"></textarea><button onclick="addN()">نشر</button><hr>`:''}${S.n.filter(n=>!n.co).map(n=>`<div class="it">${e(n.t)}<br><small>${n.d}</small></div>`).join('')||'مفيش إشعارات'}</div>`;
 const sets=a=>`<div class="card"><h2>Settings</h2><b>السمة</b><div class="dots">${TH.map((n,i)=>`<button ${S.th==i+1?'':'style="opacity:.55"'} onclick="th(${i+1})">${n}</button>`).join('')}</div></div>
-${a?`<div class="card"><h2>بياناتي</h2><input id="en" value="${e(a.name)}"><input id="ep" value="${e(a.phone)}"><input id="ef" value="${e(a.fa)}"><button class="big" onclick="rq()">إرسال التعديل للموافقة</button>${a.rq?'<small>في انتظار موافقة المشرف</small>':''}</div>`:''}${S.sup?'<div class="card"><button class="big" onclick="chpw()">تغيير باسورد المشرف</button></div>':''}<div style="text-align:center"><button onclick="out()">خروج</button></div>`;
+${vcard()}${a?`<div class="card"><h2>بياناتي</h2><input id="en" value="${e(a.name)}"><input id="ep" value="${e(a.phone)}"><input id="ef" value="${e(a.fa)}"><button class="big" onclick="rq()">إرسال التعديل للموافقة</button>${a.rq?'<small>في انتظار موافقة المشرف</small>':''}</div>`:''}${S.sup?'<div class="card"><button class="big" onclick="chpw()">تغيير باسورد المشرف</button></div>':''}<div style="text-align:center"><button onclick="out()">خروج</button></div>`;
 const mgr=()=>{const pend=S.u.filter(u=>u.st=='p'||u.rq);return `<div class="card"><button class="big" onclick="go('r')">كشف الشهر</button></div><div class="card"><h2>طلبات بانتظار الموافقة</h2>${pend.map(u=>`<div class="it"><b>${e(u.rq?u.rq.name:u.name)}</b> ${e(u.rq?u.rq.phone:u.phone)} / ${e(u.rq?u.rq.fa:u.fa)}<br><small>${u.st=='p'?'تسجيل جديد':'تعديل بيانات'}</small><br><button onclick="ok(${u.id})">موافقة</button> <button class="ln" onclick="no(${u.id})">رفض</button></div>`).join('')||'مفيش'}</div>
 <div class="card"><h2>المخدومين</h2><label><input type="checkbox" style="width:auto" ${S.fast?'checked':''} onchange="S.fast=this.checked?1:0;sv()"> اليوم يوم صيام</label>${S.u.filter(u=>u.st=='ok').map(u=>`<div class="it"><b>${e(u.name)}</b> (${u.pts}) · حضور ${(u.att||[]).length}<br><button onclick="vw(${u.id})">دخول</button> <button class="ln" onclick="pt(${u.id})">النقاط</button><button class="ln" onclick="ed(${u.id})">تعديل</button><button class="ln" onclick="md('حذف؟').then(y=>y&&no(${u.id}))">حذف</button></div>`).join('')}</div>`};
 function r0(){document.body.className='t'+S.th;const m=S.me?U(S.me):0,a=A(),app=$('#app');
@@ -166,10 +166,84 @@ function r0(){document.body.className='t'+S.th;const m=S.me?U(S.me):0,a=A(),app=
  if(m&&m.st=='p'&&!S.sup){app.innerHTML=hero(0,'أهلاً '+e(m.name))+`<div class="card"><h2>طلبك اتبعت</h2>استنى موافقة المشرف عشان تدخل.<br><button class="ln" onclick="out()">خروج</button></div>`;return}
  ;
  const need=0;
- let body=pg=='h'?(a?att(a):attSup()):pg=='t'?tasks(a):pg=='q'?quest(a,S.sup&&!S.view):pg=='a'?album():pg=='n'?notes():pg=='s'?sets(a):pg=='r'?(S.sup?rep():''):mgr();
+ let body=pg=='h'?(a?att(a):attSup()):pg=='t'?tasks(a):pg=='q'?quest(a,S.sup&&!S.view):pg=='a'?album():pg=='c'?contests(a,S.sup&&!S.view):pg=='n'?notes():pg=='s'?sets(a):pg=='r'?(S.sup?rep():''):mgr();
  const tabs=nav.concat(S.sup?[['m','👥','المشرف']]:[]);
  app.innerHTML=(S.view?`<div class="bn">بتعرض حساب ${e(a.name)} <button class="ln" style="color:#fff" onclick="S.view=0;pg='m';sv()">رجوع</button></div>`:'')+hero(a,'خدمة أبطال الأيمان')+body+`<nav>${tabs.map(([k,i,n])=>`<button class="${pg==k?'s':''}" onclick="go('${k}')"><i>${i}</i>${n}</button>`).join('')}</nav>`}
 function r(){try{r0()}catch(x){$('#app').innerHTML='<div class="card"><h2>حصلت مشكلة</h2><p style="direction:ltr;font-size:12px">'+e(x&&x.message||x)+'</p><button class="big" onclick="rs()">مسح بيانات التطبيق من التليفون ده</button></div>'}}
+/* ===== المسابقات (بتتخزن جوه نفس نظام المزامنة: المسابقة في S.n بعلامة co، وإجابة كل مخدوم في u.co) ===== */
+const COs=()=>S.n.filter(x=>x.co),CO=id=>COs().find(x=>ik(x)==id),cq=c=>c.qs||[];
+const cmax=c=>cq(c).reduce((t,q)=>t+(+q.p||0),0);
+const csc=(u,c)=>{const m=(u.co||{})[ik(c)];return m?(m.s||0)+Object.values(m.g||{}).reduce((t,v)=>t+(+v||0),0):0};
+const ctop=c=>{const id=ik(c);return S.u.filter(u=>u.st=='ok'&&u.co&&u.co[id]).map(u=>({u,s:csc(u,c),t:u.co[id].t||0})).sort((x,y)=>y.s-x.s||x.t-y.t)};
+const ctopHtml=t=>`<hr><b>الخمس الأوائل</b>${t.length?t.slice(0,5).map((x,i)=>`<div class="row it"><b>${['🥇','🥈','🥉','4','5'][i]}</b><span>${e(x.u.name)}</span><b>${x.s}</b></div>`).join(''):'<p><small>لسه محدش حل</small></p>'}`;
+const cans=(c,m)=>`<details><summary>إجاباتي</summary>${cq(c).map((q,i)=>{const x=(m.a||[])[i];return `<div class="it"><b>${i+1}. ${e(q.q)}</b><br>`+(q.ty=='tx'?`إجابتك: ${e(x||'—')}<br><small>درجتك: ${m.g&&i in m.g?m.g[i]:'لسه'} من ${q.p}</small>`:`إجابتك: ${e(q.o[x]??'—')} ${x==q.c?'✓':'✗ · الصح: '+e(q.o[q.c])}`)+`</div>`}).join('')}</details>`;
+function cMem(c,a){const id=ik(c),mine=(a.co||{})[id],mx=cmax(c);let b='';
+ if(mine){const pend=cq(c).some((q,i)=>q.ty=='tx'&&!(mine.g&&i in mine.g));
+  b=`<p>✓ حليت المسابقة · درجتك <b>${csc(a,c)}</b> من ${mx}${pend?' <small>(فيه أسئلة كتابية بانتظار تصحيح الخادم)</small>':''}</p>`+(c.open?'':cans(c,mine))}
+ else b=c.open?`<button class="big" onclick="cStart('${id}')">ابدأ الحل</button>`:'<p><small>المسابقة اتقفلت</small></p>';
+ return `<div class="card"><h2>${e(c.t)}</h2><small>${cq(c).length} سؤال · ${mx} درجة · ${c.open?'مفتوحة':'مقفولة'}</small>${b}${ctopHtml(ctop(c))}</div>`}
+function cRow(c,x){const id=ik(c),m=x.u.co[id];return `<div class="it"><b>${e(x.u.name)}</b> · ${x.s}/${cmax(c)}`+cq(c).map((q,i)=>q.ty=='tx'?`<div><small>س${i+1}: ${e(m.a[i])}</small> <button class="ln" onclick="cGr('${id}',${x.u.id},${i})">${m.g&&i in m.g?'الدرجة: '+m.g[i]:'صحّح'}</button></div>`:'').join('')+`<button class="ln" onclick="cRm('${id}',${x.u.id})">مسح نموذجه</button></div>`}
+function cSup(c){const id=ik(c),t=ctop(c);
+ return `<div class="card"><h2>${e(c.t)}</h2><small>${cq(c).length} سؤال · ${cmax(c)} درجة · ${t.length} حلّوا · ${c.open?'مفتوحة':'مقفولة'}</small><br><button onclick="cTog('${id}')">${c.open?'قفل المسابقة':'فتح المسابقة'}</button> <button class="ln" onclick="cDel('${id}')">حذف المسابقة</button>${ctopHtml(t)}<details><summary>كل النتائج (${t.length})</summary>${t.map(x=>cRow(c,x)).join('')||'مفيش'}</details></div>`}
+let CD=[],CT='';
+const cbuild=()=>`<div class="card"><h2>مسابقة جديدة</h2><input placeholder="اسم المسابقة" value="${e(CT)}" oninput="CT=this.value">${CD.map((q,i)=>`<div class="it"><b>سؤال ${i+1}</b> <small>${q.ty=='tx'?'كتابي':'اختيار من متعدد'}</small> <button class="ln" onclick="CD.splice(${i},1);r()">حذف</button><textarea rows="2" placeholder="نص السؤال" oninput="CD[${i}].q=this.value">${e(q.q)}</textarea>${q.ty=='tx'?'':`<textarea rows="4" placeholder="الإجابات، كل إجابة في سطر" oninput="CD[${i}].o=this.value">${e(q.o)}</textarea><input type="number" min="1" placeholder="رقم الإجابة الصح (مثلاً 2)" value="${e(q.c)}" oninput="CD[${i}].c=this.value">`}<input type="number" min="1" placeholder="الدرجة" value="${e(q.p)}" oninput="CD[${i}].p=this.value"></div>`).join('')}<button class="ln" onclick="CD.push({ty:'mc',q:'',o:'',c:'',p:10});r()">+ اختيار من متعدد</button> <button class="ln" onclick="CD.push({ty:'tx',q:'',p:10});r()">+ سؤال كتابي</button><button class="big" onclick="cPub()">نشر المسابقة</button></div>`;
+function contests(a,m){const L=COs().slice().sort((x,y)=>(y.t0||0)-(x.t0||0));
+ return (m?cbuild():'')+(L.length?L.map(c=>m?cSup(c):a?cMem(c,a):'').join(''):`<div class="card"><h2>المسابقات</h2>مفيش مسابقات دلوقتي</div>`)}
+function cPub(){const t=CT.trim();if(!t)return tt('اكتب اسم المسابقة');if(!CD.length)return tt('ضيف سؤال واحد على الأقل');const qs=[];
+ for(let i=0;i<CD.length;i++){const d=CD[i],q=(d.q||'').trim(),p=+d.p;if(!q)return tt('اكتب نص سؤال '+(i+1));if(!(p>0))return tt('اكتب درجة سؤال '+(i+1));
+  if(d.ty=='tx'){qs.push({ty:'tx',q,p});continue}
+  const o=(d.o||'').split('\n').map(x=>x.trim()).filter(Boolean),c=Math.round(+d.c)-1;
+  if(o.length<2)return tt('سؤال '+(i+1)+': اكتب إجابتين على الأقل');if(!(c>=0&&c<o.length))return tt('سؤال '+(i+1)+': رقم الإجابة الصح غلط');qs.push({ty:'mc',q,o,c,p})}
+ S.n.unshift({i:Date.now().toString(36)+Math.random().toString(36).slice(2,6),co:1,open:1,t,qs,d:day(),t0:Date.now()});CT='';CD=[];sv();tt('اتنشرت المسابقة ✓')}
+function cStart(id){const c=CO(id),a=A();if(!c||!c.open||!a)return;if((a.co||{})[id])return tt('حليت المسابقة دي قبل كده');const old=$('#cf');if(old)old.remove();
+ const o=document.createElement('div');o.id='cf';o.style.cssText='position:fixed;inset:0;background:#000a;overflow:auto;z-index:9;padding:12px';
+ o.innerHTML=`<div class="card" style="margin:0 auto;max-width:520px"><h2>${e(c.t)}</h2>${cq(c).map((q,i)=>`<div class="it"><b>${i+1}. ${e(q.q)}</b> <small>(${q.p} درجة)</small>`+(q.ty=='tx'?`<textarea rows="2" id="cx${i}" placeholder="اكتب إجابتك"></textarea>`:q.o.map((t,j)=>`<label style="display:block;padding:4px 0"><input type="radio" name="cq${i}" value="${j}" style="width:auto;margin-left:6px">${e(t)}</label>`).join(''))+`</div>`).join('')}<button class="big" onclick="cSend('${id}')">تسليم الإجابات</button><div style="text-align:center"><button class="ln" onclick="$('#cf').remove()">إلغاء</button></div></div>`;document.body.append(o)}
+async function cSend(id){const c=CO(id),a=A();if(!c||!c.open||!a||(a.co||{})[id])return;const ans=[];let sc=0;
+ for(let i=0;i<cq(c).length;i++){const q=c.qs[i];
+  if(q.ty=='tx'){const v=(($('#cx'+i)||{}).value||'').trim();if(!v)return tt('جاوب على كل الأسئلة (سؤال '+(i+1)+')');ans.push(v)}
+  else{const x=document.querySelector('input[name="cq'+i+'"]:checked');if(!x)return tt('جاوب على كل الأسئلة (سؤال '+(i+1)+')');const j=+x.value;ans.push(j);if(j==q.c)sc+=+q.p||0}}
+ if(!await md('تسلّم إجاباتك؟ مش هتقدر تعدّلها بعد كده'))return;
+ if((a.co||{})[id])return;a.co=a.co||{};a.co[id]={a:ans,s:sc,g:{},d:day(),t:Date.now()};a.pts+=sc;const f=$('#cf');if(f)f.remove();sv();tt('اتسلمت إجاباتك ✓ درجتك '+sc)}
+async function cGr(id,uid,i){const c=CO(id),u=U(uid),m=u&&u.co&&u.co[id];if(!c||!m)return;const q=c.qs[i],cur=(m.g||{})[i],v=await md('درجة '+u.name+' على سؤال '+(i+1)+' (من '+q.p+') · إجابته: '+m.a[i],cur??'',1);
+ if(v===null||v.trim()==='')return;const n=+v;if(isNaN(n)||n<0||n>q.p)return tt('الدرجة لازم تبقى من 0 لـ '+q.p);m.g=m.g||{};u.pts+=n-(+cur||0);m.g[i]=n;sv()}
+async function cRm(id,uid){const c=CO(id),u=U(uid);if(!c||!u||!u.co||!u.co[id])return;if(!await md('تمسح نموذج '+u.name+'؟ هتتخصم درجاته من نقاطه ويقدر يحل تاني'))return;u.pts-=csc(u,c);delete u.co[id];sv()}
+function cTog(id){const c=CO(id);if(c){c.open=c.open?0:1;sv()}}
+async function cDel(id){if(!await md('تحذف المسابقة؟ النقاط اللي المخدومين خدوها هتفضل زي ما هي'))return;S.n=S.n.filter(x=>ik(x)!=id);sv()}
+/* ===== آية اليوم: آية مختلفة لكل مخدوم كل يوم + تنبيه برة التطبيق ===== */
+const dn=()=>{const d=new Date();return Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5)};
+const vslot=()=>{const ids=S.u.map(x=>+x.id).sort((a,b)=>a-b),i=ids.indexOf(+S.me);return i<0?ids.length:i};
+function dverse(off){if(typeof VERSES=='undefined'||!VERSES.length)return null;const n=VERSES.length;return VERSES[(((vslot()+dn()+(off||0))%n)+n)%n]}
+function showVerse(){const v=dverse();if(!v)return tt('الآيات مش متحمّلة، حدّث التطبيق');const old=$('#vo');if(old)old.remove();
+ const o=document.createElement('div');o.id='vo';o.style.cssText='position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:9;padding:16px';
+ o.innerHTML=`<div class="card" style="width:100%;max-width:420px;margin:0;text-align:center"><img class="logo" src="icon.jpg" alt=""><h2>آية اليوم</h2><div class="v" style="margin:12px 0;font-size:22px;line-height:1.9">${e(v[0])}</div><b style="color:var(--b)">${e(v[1])}</b><button class="big" id="vc">آمين</button></div>`;
+ document.body.append(o);o.querySelector('#vc').onclick=()=>o.remove();o.onclick=ev=>{if(ev.target===o)o.remove()}}
+const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+const b64u=s=>{const p=(s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'),r=atob(p),o=new Uint8Array(r.length);for(let i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o};
+const vtz=()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'Africa/Cairo'}catch(x){return 'Africa/Cairo'}};
+async function rpc(fn,b){const r=await fetch(SB.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:HD(),body:JSON.stringify(b||{})}),t=await r.text();if(!r.ok)throw new Error(fn+' '+r.status+' '+t.slice(0,80));try{return t?JSON.parse(t):null}catch(x){return t}}
+async function vSub(){const key=await rpc('push_public_key');if(!key)throw new Error('nokey');
+ const kb=b64u(key),reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();
+ const same=s=>{try{const k=new Uint8Array(s.options.applicationServerKey);return k.length==kb.length&&k.every((v,i)=>v==kb[i])}catch(x){return true}};
+ if(sub&&!same(sub)){await sub.unsubscribe();sub=null}
+ if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:kb});
+ const j=sub.toJSON();await rpc('push_save',{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth,p_time:(S.pv&&S.pv.t)||'08:00',p_tz:vtz(),p_enabled:true});return sub}
+async function vOn(){if(!pushOK())return tt('المتصفح ده مش بيدعم التنبيهات');if(!navigator.onLine)return tt('محتاج نت عشان تفعّل التنبيه');
+ try{const p=await Notification.requestPermission();if(p!='granted'){r();return tt('لازم تسمح بالإشعارات للتطبيق من إعدادات الموبايل')}
+  await vSub();S.pv={...(S.pv||{}),on:1};save();r();tt('اتفعّل التنبيه ✓')}
+ catch(x){tt(x&&x.message=='nokey'?'السيرفر لسه بيتجهز، جرب بعد دقيقة':'مقدرناش نفعّل التنبيه: '+(x&&x.message||x))}}
+async function vOff(){try{const reg=await navigator.serviceWorker.ready,sub=await reg.pushManager.getSubscription();if(sub){try{await rpc('push_remove',{p_endpoint:sub.endpoint})}catch(x){}await sub.unsubscribe()}}catch(x){}
+ S.pv={...(S.pv||{}),on:0};save();r();tt('اتقفل التنبيه')}
+async function vTime(t){if(!/^\d\d:\d\d$/.test(t||''))return;S.pv={...(S.pv||{}),t};save();
+ if(S.pv.on){try{await vSub();tt('اتغيّر وقت التنبيه ✓')}catch(x){tt('الوقت اتحفظ وهيتحدّث لما النت يرجع')}}}
+async function vTest(){try{const reg=await navigator.serviceWorker.ready,sub=await reg.pushManager.getSubscription();if(!sub)return tt('فعّل التنبيه الأول');
+ await vSub();await rpc('push_test',{p_endpoint:sub.endpoint});tt('هيوصلك تنبيه تجريبي خلال دقيقة تقريباً')}catch(x){tt('حصلت مشكلة: '+(x&&x.message||x))}}
+const vcard=()=>{if(!S.me&&!S.sup)return '';const P=S.pv||{},ok=pushOK(),den=ok&&Notification.permission=='denied',on=!!(P.on&&ok&&Notification.permission=='granted');
+ return `<div class="card"><h2>آية اليوم</h2><p><small>كل يوم آية مختلفة ليك، وتوصلك في تنبيه برة التطبيق.</small></p><button class="ln" onclick="showVerse()">اقرأ آية النهاردة</button>`+
+ (ok?`<hr><label>وقت التنبيه كل يوم</label><input id="vt" type="time" value="${e(P.t||'08:00')}" onchange="vTime(this.value)">${den?'<p><small>الإشعارات مقفولة للتطبيق، فعّلها من إعدادات الموبايل ثم ارجع هنا.</small></p>':''}<button class="big" onclick="${on?'vOff()':'vOn()'}">${on?'إيقاف التنبيه':'تفعيل التنبيه'}</button>${on?'<div style="text-align:center"><button class="ln" onclick="vTest()">ابعتلي تنبيه تجريبي</button></div>':''}`:'<p><small>المتصفح ده مش بيدعم التنبيهات. افتح التطبيق من كروم على أندرويد.</small></p>')+`</div>`};
+async function vInit(){if(/[?&]verse=1/.test(location.search)){history.replaceState(null,'',location.pathname);setTimeout(showVerse,400)}
+ if(!pushOK())return;navigator.serviceWorker.addEventListener('message',m=>{if(m.data&&m.data.t=='verse')showVerse()});
+ const P=S.pv;if(!P||!P.on)return;if(Notification.permission!='granted'){S.pv.on=0;save();return}
+ try{if(navigator.onLine)await vSub()}catch(x){}}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-setInterval(tickQR,1000);setInterval(sync,20000);addEventListener('online',sync);addEventListener('offline',ui);r();tickQR();sync();
+setInterval(tickQR,1000);setInterval(sync,20000);addEventListener('online',sync);addEventListener('offline',ui);r();tickQR();sync();vInit();
 </script></body></html>
