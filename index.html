@@ -5,8 +5,8 @@
 <title>ⲧⲁⲓⲟ</title>
 <link rel="manifest" href="manifest.json"><link rel="icon" href="icon.jpg"><link rel="apple-touch-icon" href="icon.jpg">
 <meta name="theme-color" content="#b8821f"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="ⲧⲁⲓⲟ"><meta name="apple-mobile-web-app-status-bar-style" content="default">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script><script src="verses.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script><script async src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script><script src="verses.js"></script>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cairo:wght@400;700&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cairo:wght@400;700&display=swap"></noscript>
 <style>
 *{box-sizing:border-box;margin:0}
 :root{--a:#b8821f;--b:#6e3f0c;--bg:#fbf4e4;--ink:#2b1d0e;--c:#fffdf8;--pat:linear-gradient(45deg,#0001 25%,transparent 25% 75%,#0001 75%) 0 0/28px 28px}
@@ -71,11 +71,12 @@ function md(m,d,inp){return new Promise(res=>{const o=document.createElement('di
 function tt(m){const t=document.createElement('div');t.className='bn';t.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99';t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),3000)}
 const day=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')},wd=()=>new Date().getDay();
 const U=id=>S.u.find(u=>u.id==id),A=()=>U(S.view||S.me);
+const fx=(u,o={},ms=15000)=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);return fetch(u,{...o,signal:c.signal}).finally(()=>clearTimeout(t))};
 const SUP_EMAIL='';
 const SB={url:'https://djybjsmbyoqhsdxqejly.supabase.co',key:'sb_publishable_LNCYlDkeR5UTf0xfbrJ6PQ_OtwsIj0t'};
 const KS=['u','sh','q','n','al','pu'],ik=it=>String(it.id||it.i),HD=t=>({apikey:SB.key,Authorization:'Bearer '+(t||SB.key),'Content-Type':'application/json'});
 let ST=0,busy=0,tm,ER='',PRV={},PRVs='',PRVd=0;
-const rpcT=async(fn,b,t)=>{const r=await fetch(SB.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:HD(t),body:JSON.stringify(b||{})}),x=await r.text();if(!r.ok)throw new Error(fn+' '+r.status);try{return x?JSON.parse(x):null}catch(z){return x}};
+const rpcT=async(fn,b,t)=>{const r=await fx(SB.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:HD(t),body:JSON.stringify(b||{})}),x=await r.text();if(!r.ok)throw new Error(fn+' '+r.status);try{return x?JSON.parse(x):null}catch(z){return x}};
 const save=()=>{try{localStorage.setItem('tayo',JSON.stringify(S))}catch(x){tt('المساحة امتلأت، قلل الصور')}};
 function diff(){S.sg=S.sg||{};S.qq=S.qq||{};const seen={};
  KS.forEach(k=>(S[k]=S[k]||[]).forEach(it=>{if(!it.id&&!it.i)it.i=Date.now().toString(36)+Math.random().toString(36).slice(2,6);const i=ik(it);seen[i]=1;const g=hh(JSON.stringify(it,(a,v)=>a=='_t'?undefined:v)),o=S.sg[i];if(!o||o.s!==g){it._t=Date.now();S.sg[i]={k,s:g};S.qq[i]={k,t:it._t}}}));
@@ -83,11 +84,11 @@ function diff(){S.sg=S.sg||{};S.qq=S.qq||{};const seen={};
  const c=hh(String(S.fast)+'|'+(S.com||'')+'|'+(S.lock?1:0));if(!S.sg.cfg)S.sg.cfg={k:'cfg',s:c};else if(S.sg.cfg.s!==c){S.ft=Date.now();S.sg.cfg.s=c;S.qq.cfg={k:'cfg',t:S.ft}}}
 function dedupe(){return 0}
 async function bearer(){if(!S.sup||!S.tk)return SB.key;if(S.te>Date.now()+60000)return S.tk;
- const r=await fetch(SB.url+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SB.key,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:S.rt})});
+ const r=await fx(SB.url+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SB.key,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:S.rt})});
  if(!r.ok){if(r.status<500){S.sup=0;S.tk='';save();tt('انتهت جلسة المشرف، سجل دخول تاني');r_()}ER='auth '+r.status;throw 1}
  const j=await r.json();S.tk=j.access_token;S.rt=j.refresh_token;S.te=Date.now()+j.expires_in*1000;save();return S.tk}
 async function pull(t){const since=new Date((S.lp||0)-6e5).toISOString();
- const res=await fetch(SB.url+'/rest/v1/items?select=id,kind,data,updated_at&order=updated_at.asc&updated_at=gt.'+encodeURIComponent(since),{headers:HD(t)});if(!res.ok){ER='pull '+res.status+' '+(await res.text()).slice(0,90);throw 1}const rows=await res.json();let ch=0;
+ const res=await fx(SB.url+'/rest/v1/items?select=id,kind,data,updated_at&order=updated_at.asc&updated_at=gt.'+encodeURIComponent(since),{headers:HD(t)});if(!res.ok){ER='pull '+res.status+' '+(await res.text()).slice(0,90);throw 1}const rows=await res.json();let ch=0;
  for(const w of rows){S.lp=Math.max(S.lp||0,Date.parse(w.updated_at)||0);const d=w.data||{},k=w.kind;
   if(k=='cfg'){if((d._t||0)>(S.ft||0)){S.fast=d.fast;S.com=d.com||'';S.lock=d.lock?1:0;S.ft=d._t;S.sg.cfg={k:'cfg',s:hh(String(S.fast)+'|'+(S.com||'')+'|'+(S.lock?1:0))};ch=1}continue}
   if(!KS.includes(k)||S.qq[w.id])continue;const L=S[k],ix=L.findIndex(x=>ik(x)==w.id),sg=()=>hh(JSON.stringify(d,(a,v)=>a=='_t'?undefined:v));
@@ -97,11 +98,12 @@ async function pull(t){const since=new Date((S.lp||0)-6e5).toISOString();
 async function sync(){if(!SB.url||busy||!navigator.onLine){ui();return}busy=1;
  try{ER='';diff();const t=await bearer();let pe=0;const snap={...S.qq},ks=Object.keys(snap).filter(i=>S.sup||['u','q','pu'].includes(snap[i].k)),now=new Date().toISOString();
   if(ks.length){const rows=ks.map(i=>{const q=snap[i];if(q.x)return{id:i,kind:q.k,data:{_x:1,_t:q.t},updated_at:now};if(q.k=='cfg')return{id:'cfg',kind:'cfg',data:{fast:S.fast,com:S.com||'',lock:S.lock?1:0,_t:S.ft},updated_at:now};const it=S[q.k].find(x=>ik(x)==i);return it?{id:i,kind:q.k,data:it,updated_at:now}:null}).filter(Boolean);
-   if(rows.length){try{const p=await fetch(SB.url+'/rest/v1/items?on_conflict=id',{method:'POST',headers:{...HD(t),Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(rows)});if(!p.ok){ER='push '+p.status+' '+(await p.text()).slice(0,90);throw 1}}catch(x){pe=1;if(!ER)ER='push '+(x&&x.message||x)}}
+   if(rows.length){try{const p=await fx(SB.url+'/rest/v1/items?on_conflict=id',{method:'POST',headers:{...HD(t),Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(rows)});if(!p.ok){ER='push '+p.status+' '+(await p.text()).slice(0,90);throw 1}}catch(x){pe=1;if(!ER)ER='push '+(x&&x.message||x)}}
    if(!pe)ks.forEach(i=>{if(S.qq[i]&&S.qq[i].t===snap[i].t)delete S.qq[i]})}
   const ch=await pull(t);if(S.sup){try{const pv=await rpcT('sup_private',{},t),ps=JSON.stringify(pv);if(ps!==PRVs){PRV=pv||{};PRVs=ps;PRVd=1}}catch(x){}}ST=pe?0:1;diff();save();const f=document.activeElement;if((ch||PRVd)&&!(f&&/INPUT|TEXTAREA/.test(f.tagName))){PRVd=0;r()}}catch(x){ST=0;if(!ER)ER=String(x&&x.message||x)}
  busy=0;ui()}
-function ui(){const el=$('#st');if(!el)return;const n=Object.keys(S.qq||{}).length;el.textContent=(SB.url?(navigator.onLine&&ST?'🟢 متصل':'🔴 أوفلاين'):'🔴 غير مربوط بقاعدة البيانات')+(n?' · '+n+' بانتظار المزامنة':'')+(ER&&!ST?' ['+ER+']':'')}
+function ui(){const el=$('#st');if(!el)return;el.textContent=navigator.onLine&&!ER?'🟢 أونلاين':'🔴 أوفلاين'}
+
 const T=[['b','صبحت على بابا يسوع (صلاة باكر)',10],['a','صليت بالأجبية',20],['c','اعترفت',50],['m','5 ميطانيات',20],['j','فرحت قلب ربنا',10],['s','الصلاة السهمية',10],['g','قريت الإنجيل',10]];
 const V=['الرب راعيَّ فلا يعوزني شيء (مز 23: 1)','أستطيع كل شيء في المسيح الذي يقويني (في 4: 13)','اطلبوا أولاً ملكوت الله وبره (مت 6: 33)','الرب نوري وخلاصي، ممن أخاف؟ (مز 27: 1)','تعالوا إليّ يا جميع المتعبين والثقيلي الأحمال وأنا أريحكم (مت 11: 28)','لا تخف لأني معك (إش 41: 10)','كن أميناً إلى الموت فسأعطيك إكليل الحياة (رؤ 2: 10)'];
 const TH=['ذهبي إسكندراني','برتقالي','أزرق ملكي','قرمزي الشهداء','أخضر البرية'];
@@ -127,7 +129,7 @@ const em0=()=>SUP_EMAIL||S.se||'';
 function sl(){$('#sw').hidden=false;$(em0()?'#spw':'#sem').focus()}
 function fl(st){if(st==400){S.fa=(S.fa||0)+1;if(S.fa>=5){S.lk=Date.now()+3e5;S.fa=0;tt('محاولات كتير غلط. اتقفل تسجيل المشرف 5 دقايق')}save()}}
 async function sl2(){const em=$('#sem').value.trim(),pw=$('#spw').value;if(!em||!pw)return tt(em0()?'اكتب الباسورد':'اكتب الإيميل والباسورد');if(S.lk&&Date.now()<S.lk)return tt('محاولات كتير غلط. جرب بعد '+Math.ceil((S.lk-Date.now())/6e4)+' دقيقة');if(!navigator.onLine)return tt('محتاج نت لتسجيل دخول المشرف');
- try{const r=await fetch(SB.url+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SB.key,'Content-Type':'application/json'},body:JSON.stringify({email:em,password:pw})});const j=await r.json();
+ try{const r=await fx(SB.url+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SB.key,'Content-Type':'application/json'},body:JSON.stringify({email:em,password:pw})});const j=await r.json();
  if(!r.ok||!j.access_token){fl(r.status);return tt(r.status==400?(em0()?'الباسورد غلط':'الإيميل أو الباسورد غلط'):'خطأ '+r.status+': '+(j.msg||j.message||j.error_description||''))}S.fa=0;S.lk=0;S.se=em;S.tk=j.access_token;S.rt=j.refresh_token;S.te=Date.now()+j.expires_in*1000;S.sup=1;pg='m';sv()}catch(x){tt('تعذر الاتصال: '+(x&&x.message||x))}}
 function out(){S.me=0;S.sup=0;S.tk='';S.rt='';S.view=0;pg='h';sv()}
 const CODE='TAYO-2026',ONLY_THU=true;
@@ -138,7 +140,7 @@ function setCode(c){if(!c)return;if(!okc(c))return tt('الباركود غلط �
 async function scan(){const v=$('#cam'),fb=()=>{v.hidden=true;md('اكتب الكود','',1).then(setCode)};if(!navigator.mediaDevices)return fb();
  v.hidden=false;try{const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});v.srcObject=st;await v.play();
  const d=window.BarcodeDetector?new BarcodeDetector({formats:['qr_code']}):0,cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
- const t=setInterval(async()=>{try{let c='';if(d){const x=await d.detect(v);c=x[0]?x[0].rawValue:''}else if(window.jsQR&&v.videoWidth){cv.width=v.videoWidth;cv.height=v.videoHeight;cx.drawImage(v,0,0);const q=jsQR(cx.getImageData(0,0,cv.width,cv.height).data,cv.width,cv.height);c=q?q.data:''}
+ const t=setInterval(async()=>{try{let c='';if(d){const x=await d.detect(v);c=x[0]?x[0].rawValue:''}else if(window.jsQR&&v.videoWidth){const k=Math.min(1,480/v.videoWidth);cv.width=Math.round(v.videoWidth*k);cv.height=Math.round(v.videoHeight*k);cx.drawImage(v,0,0,cv.width,cv.height);const q=jsQR(cx.getImageData(0,0,cv.width,cv.height).data,cv.width,cv.height);c=q?q.data:''}
  if(c){clearInterval(t);st.getTracks().forEach(y=>y.stop());v.hidden=true;setCode(c)}}catch(z){}},400)}catch(z){fb()}}
 const att=a=>{const A_=a.att||[],on=A_.includes(day());return `<div class="card"><h2>تسجيل الحضور</h2>${on?'<p>✓ اتسجل حضورك النهاردة</p>':'<p>امسح باركود الخدمة عشان تسجل حضورك وتاخد 10 ⲧⲁⲓⲟ.</p><button class="big" onclick="scan()">مسح الباركود</button><video id="cam" hidden playsinline muted></video>'}<p><small>الخدمة كل يوم خميس الساعة 7:30 مساءً</small></p><p><small>عدد مرات حضورك: ${A_.length}</small></p></div>`};
 const SD=4,SDN='الخميس',SVH=19,SVM=30,LATE=15;
@@ -152,7 +154,7 @@ async function repl(i){const q=Q(i);if(!q)return;const t=await md('اكتب ال
 async function dq(i){if(!await md('حذف السؤال؟'))return;S.q=S.q.filter(x=>ik(x)!=i);sv()}
 async function chpw(){const a=await md('اكتب باسورد جديد للمشرف (8 حروف أو أرقام على الأقل)','',2);if(a===null)return;if(a.length<8)return tt('الباسورد قصير');
  const b=await md('اكتبه تاني للتأكيد','',2);if(b!==a)return tt('مش متطابقين');
- try{const r=await fetch(SB.url+'/auth/v1/user',{method:'PUT',headers:{apikey:SB.key,Authorization:'Bearer '+await bearer(),'Content-Type':'application/json'},body:JSON.stringify({password:a})});tt(r.ok?'اتغير الباسورد ✓':'ماقدرناش نغير الباسورد، سجل دخول تاني وجرب')}catch(x){tt('محتاج نت لتغيير الباسورد')}}
+ try{const r=await fx(SB.url+'/auth/v1/user',{method:'PUT',headers:{apikey:SB.key,Authorization:'Bearer '+await bearer(),'Content-Type':'application/json'},body:JSON.stringify({password:a})});tt(r.ok?'اتغير الباسورد ✓':'ماقدرناش نغير الباسورد، سجل دخول تاني وجرب')}catch(x){tt('محتاج نت لتغيير الباسورد')}}
 function ask(){const t=$('#qt').value.trim();if(!t)return;S.q.push({i:Date.now().toString(36)+Math.random().toString(36).slice(2,6),t,n:$('#qa').checked?'مجهول':A().name,by:qt(),d:day()});sv();tt('وصل سؤالك')}
 function delSh(i){S.sh.splice(i,1);sv()}
 function tg(id){if(wd()!=SD)return tt('الحضور بيتسجل يوم '+SDN+' بس');const u=U(id);if(!u)return;u.att=u.att||[];u.log=u.log||{};const d=day(),i=u.att.indexOf(d),L=u.log[d]||[];
@@ -303,7 +305,7 @@ function iosBanner(){if(!IOS||STAND||S.ib||$('#ib'))return;const d=document.crea
 const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
 const b64u=s=>{const p=(s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'),r=atob(p),o=new Uint8Array(r.length);for(let i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o};
 const vtz=()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'Africa/Cairo'}catch(x){return 'Africa/Cairo'}};
-async function rpc(fn,b){const r=await fetch(SB.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:HD(),body:JSON.stringify(b||{})}),t=await r.text();if(!r.ok)throw new Error(fn+' '+r.status+' '+t.slice(0,80));try{return t?JSON.parse(t):null}catch(x){return t}}
+async function rpc(fn,b){const r=await fx(SB.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:HD(),body:JSON.stringify(b||{})}),t=await r.text();if(!r.ok)throw new Error(fn+' '+r.status+' '+t.slice(0,80));try{return t?JSON.parse(t):null}catch(x){return t}}
 async function vSub(){const key=await rpc('push_public_key');if(!key)throw new Error('nokey');
  const kb=b64u(key),reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();
  const same=s=>{try{const k=new Uint8Array(s.options.applicationServerKey);return k.length==kb.length&&k.every((v,i)=>v==kb[i])}catch(x){return true}};
